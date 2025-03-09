@@ -1,73 +1,66 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:mobiliz/features/home/map/map_view.dart';
+import 'package:iconsax_plus/iconsax_plus.dart';
+import 'package:mobiliz/core/components/custom_navigation_bar.dart';
+import 'package:mobiliz/core/config/router/router.gr.dart';
 
-final views = [
-  Scaffold(
-    body: Center(
-      child: Text('a'),
-    ),
-  ),
-  Scaffold(
-    body: Center(
-      child: Text('a'),
-    ),
-  ),
-  MapView(),
-  Scaffold(
-    body: Center(
-      child: Text('a'),
-    ),
-  ),
-  Scaffold(
-    body: Center(
-      child: Text('a'),
-    ),
-  ),
-];
-
-class HomeView extends StatefulWidget {
+@RoutePage()
+class HomeView extends StatelessWidget {
   const HomeView({super.key});
 
   @override
-  State<HomeView> createState() => _HomeViewState();
-}
-
-class _HomeViewState extends State<HomeView> {
-  int selectedIndex = 0;
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: views[selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: selectedIndex,
-        onTap: (index) {
-          setState(() {
-            selectedIndex = index;
-          });
-        },
-        items: [
-          BottomNavigationBarItem(
-            label: 'f',
-            icon: Icon(Icons.home),
+    return AutoTabsScaffold(
+      routes: [
+        SummaryRoute(),
+        TrackRoute(),
+        MapRoute(),
+        ReportsRoute(),
+        OthersRoute(),
+      ],
+      bottomNavigationBuilder: (final _, final tabsRouter) {
+        return Container(
+          height: 117,
+          decoration: BoxDecoration(
+            border: Border(
+              top: BorderSide(
+                color: Color(0xffE9E9E9),
+              ),
+            ),
           ),
-          BottomNavigationBarItem(
-            label: 'd',
-            icon: Icon(Icons.home),
+          child: CustomBottomNavigationBar(
+            currentIndex: tabsRouter.activeIndex,
+            onTap: (index) => tabsRouter.setActiveIndex(index),
+            items: [
+              BottomNavigationBarItemWithDot(
+                label: 'Özet',
+                icon: Icon(IconsaxPlusLinear.note_2),
+                activeIcon: Icon(IconsaxPlusBold.note_2),
+              ),
+              BottomNavigationBarItemWithDot(
+                label: 'Filo Takip',
+                icon: Icon(IconsaxPlusLinear.smart_car),
+                activeIcon: Icon(IconsaxPlusBold.smart_car),
+              ),
+              BottomNavigationBarItemWithDot(
+                label: 'Harita',
+                icon: Icon(IconsaxPlusLinear.map_1),
+                activeIcon: Icon(IconsaxPlusBold.map_1),
+              ),
+              BottomNavigationBarItemWithDot(
+                label: 'Raporlar',
+                icon: Icon(IconsaxPlusLinear.graph),
+                activeIcon: Icon(IconsaxPlusBold.graph),
+              ),
+              BottomNavigationBarItemWithDot(
+                  label: 'Diğer',
+                  icon: Icon(IconsaxPlusLinear.element_equal),
+                  activeIcon: Icon(IconsaxPlusBold.element_equal),
+                  showDot: true),
+            ],
           ),
-          BottomNavigationBarItem(
-            label: 'e',
-            icon: Icon(Icons.map),
-          ),
-          BottomNavigationBarItem(
-            label: 'c',
-            icon: Icon(Icons.home),
-          ),
-          BottomNavigationBarItem(
-            label: 's',
-            icon: Icon(Icons.home),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

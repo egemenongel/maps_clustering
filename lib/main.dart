@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobiliz/core/app_theme.dart';
-import 'package:mobiliz/features/home/home_shell.dart';
+import 'package:mobiliz/core/config/router/router.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,10 +11,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Mobiliz',
-      home: HomeView(),
       theme: AppTheme.theme,
+      routerConfig: AppRouter.instance.config(),
     );
   }
 }
