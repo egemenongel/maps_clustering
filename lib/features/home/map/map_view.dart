@@ -1,9 +1,13 @@
-import 'dart:math';
+import 'dart:developer';
+import 'dart:math' as math;
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
+import 'package:latlong2/latlong.dart';
 
 @RoutePage()
 class MapView extends StatefulWidget {
@@ -15,39 +19,17 @@ class MapView extends StatefulWidget {
 
 class ClusteringBodyState extends State<MapView> {
   List<String> iconPaths = [
-    'assets/icons/pin_black.png',
-    'assets/icons/pin_blue.png',
-    'assets/icons/pin_green.png',
-    'assets/icons/pin_purple.png',
-    'assets/icons/pin_red.png',
-    'assets/icons/pin_yellow.png'
+    'assets/icons/pin_black.svg',
+    'assets/icons/pin_blue.svg',
+    'assets/icons/pin_green.svg',
+    'assets/icons/pin_purple.svg',
+    'assets/icons/pin_red.svg',
+    'assets/icons/pin_yellow.svg'
   ];
-  List<BitmapDescriptor> _bitmapIcons = [];
-
-  GoogleMapController? controller;
-  final clusterManagerId = ClusterManagerId('clusterManager');
-  Set<Marker> _markers = {};
-  void _onMapCreated(GoogleMapController controllerParam) {
-    setState(() {
-      controller = controllerParam;
-    });
-  }
-
-  Future<void> _loadBitmaps() async {
-    List<BitmapDescriptor> bitmaps = [];
-    for (String path in iconPaths) {
-      final icon = await BitmapDescriptor.asset(
-        const ImageConfiguration(size: Size(50, 60)),
-        path,
-      );
-      bitmaps.add(icon);
-    }
-
-    setState(() {
-      _bitmapIcons = bitmaps;
-    });
-  }
-
+  double currentZoom = 6.0;
+  final double zoomThreshold = 10.0;
+  final List<int> randomNumbers = [];
+  late List<Marker> markers;
   var latlongs = [
     {"lat": 37.1438001, "lon": 35.4984094},
     {"lat": 37.78936, "lon": 38.3141101},
@@ -131,42 +113,50 @@ class ClusteringBodyState extends State<MapView> {
     {"lat": 37.2517882, "lon": 36.2993502},
     {"lat": 40.8774545, "lon": 31.2009618}
   ];
-  void _addMarkers() async {
-    await _loadBitmaps();
-
-    final markers = latlongs.map(
-      (e) {
-        final location = LatLng(e["lat"]!, e["lon"]!);
-
-        return Marker(
-          markerId: MarkerId(location.toString()),
-          position: location,
-          icon: _bitmapIcons[Random().nextInt(_bitmapIcons.length)],
-          clusterManagerId: clusterManagerId,
-        );
-      },
-    ).toSet();
-
-    setState(() {
-      _markers = {...markers};
-    });
-  }
 
   @override
   void initState() {
+    for (var i = 0; i < latlongs.length; i++) {
+      randomNumbers.add(math.Random().nextInt(iconPaths.length));
+    }
+    _createMarkers();
+
     super.initState();
-    _addMarkers();
+  }
+
+  void _createMarkers() {
+    final isZoomedIn = currentZoom >= zoomThreshold;
+    markers = [];
+    for (var i = 0; i < latlongs.length; i++) {
+      markers.add(
+        Marker(
+          height: 40,
+          width: 40,
+          point: LatLng(
+            latlongs[i]['lat'] as double,
+            latlongs[i]['lon'] as double,
+          ),
+          child: Stack(
+            children: [
+              if (isZoomedIn)
+                SvgPicture.asset(
+                  iconPaths[randomNumbers[i]],
+                )
+              else ...[
+                ClusterPin(
+                  assetPath: 'assets/icons/cluster_green.svg',
+                  count: 1,
+                )
+              ]
+            ],
+          ),
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final clusterManager = ClusterManager(
-      clusterManagerId: clusterManagerId,
-    );
-    Map<ClusterManagerId, ClusterManager> clusterManagers = {
-      clusterManagerId: clusterManager
-    };
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Harita'),
@@ -181,15 +171,66 @@ class ClusteringBodyState extends State<MapView> {
           ),
         ],
       ),
-      body: GoogleMap(
-        onMapCreated: _onMapCreated,
-        initialCameraPosition: const CameraPosition(
-          target: LatLng(39.9334, 32.8597),
-          zoom: 1.0,
+      body: FlutterMap(
+        options: MapOptions(
+          onMapEvent: (event) {
+            if (event is MapEventMove && event.camera.zoom != currentZoom) {
+              final oldZoom = currentZoom;
+              currentZoom = event.camera.zoom;
+
+              if ((oldZoom < zoomThreshold && currentZoom >= zoomThreshold) ||
+                  (oldZoom >= zoomThreshold && currentZoom < zoomThreshold)) {
+                setState(() {
+                  _createMarkers();
+                });
+                log('Zoom threshold crossed. New zoom: $currentZoom');
+              }
+            }
+          },
+          initialCenter: LatLng(41.7078046, 27.6051334),
+          initialZoom: currentZoom,
+          maxZoom: 15,
         ),
-        markers: _markers,
-        clusterManagers: Set<ClusterManager>.of(clusterManagers.values),
-        myLocationButtonEnabled: false,
+        children: <Widget>[
+          TileLayer(
+            urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            subdomains: const ['a', 'b', 'c'],
+          ),
+          MarkerClusterLayerWidget(
+            options: MarkerClusterLayerOptions(
+              maxClusterRadius: 70,
+              showPolygon: false,
+              spiderfyCluster: false,
+              size: const Size(40, 40),
+              alignment: Alignment.center,
+              padding: const EdgeInsets.all(50),
+              maxZoom: 15,
+              inside: true,
+              markers: markers,
+              onMarkersClustered: (p0) {
+                log(p0.length.toString());
+              },
+              builder: (context, markers) {
+                if (markers.length <= 10) {
+                  return ClusterPin(
+                    assetPath: 'assets/icons/cluster_green.svg',
+                    count: markers.length,
+                  );
+                } else if (markers.length <= 50) {
+                  return ClusterPin(
+                    assetPath: 'assets/icons/cluster_blue.svg',
+                    count: markers.length,
+                  );
+                } else {
+                  return ClusterPin(
+                    assetPath: 'assets/icons/cluster_red.svg',
+                    count: markers.length,
+                  );
+                }
+              },
+            ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         elevation: 0,
@@ -220,6 +261,41 @@ class ClusteringBodyState extends State<MapView> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class ClusterPin extends StatelessWidget {
+  const ClusterPin({
+    super.key,
+    required this.assetPath,
+    required this.count,
+  });
+  final String assetPath;
+  final int count;
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        SvgPicture.asset(
+          assetPath,
+        ),
+        Align(
+          alignment: Alignment.center,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: Text(
+              '$count',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
