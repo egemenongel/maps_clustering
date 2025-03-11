@@ -78,7 +78,5 @@ class BottomNavigationBarItemWithDot extends BottomNavigationBarItem {
   }) : super(
           activeIcon: activeIcon ?? icon,
         );
-
-  /// Whether to show a small dot under the label when active.
   final bool showDot;
 }

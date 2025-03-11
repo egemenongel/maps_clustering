@@ -11,7 +11,7 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:auto_route/auto_route.dart' as _i7;
 import 'package:mobiliz/features/home/home_shell.dart' as _i1;
-import 'package:mobiliz/features/home/map/map_view.dart' as _i2;
+import 'package:mobiliz/features/home/map/view/map_view.dart' as _i2;
 import 'package:mobiliz/features/home/others/others_view.dart' as _i3;
 import 'package:mobiliz/features/home/reports/reports_view.dart' as _i4;
 import 'package:mobiliz/features/home/summary/summary_view.dart' as _i5;

@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  static final theme = ThemeData(
+  AppTheme._();
+
+  static final AppTheme _instance = AppTheme._();
+  static AppTheme get instance => _instance;
+
+  final theme = ThemeData(
     appBarTheme: AppBarTheme(
       foregroundColor: Color(0xff222222),
       centerTitle: false,

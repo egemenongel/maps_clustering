@@ -8,6 +8,8 @@ import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:mobiliz/core/constants/app_constants.dart';
+import 'package:mobiliz/core/constants/assets.dart';
 
 @RoutePage()
 class MapView extends StatefulWidget {
@@ -19,12 +21,12 @@ class MapView extends StatefulWidget {
 
 class ClusteringBodyState extends State<MapView> {
   List<String> iconPaths = [
-    'assets/icons/pin_black.svg',
-    'assets/icons/pin_blue.svg',
-    'assets/icons/pin_green.svg',
-    'assets/icons/pin_purple.svg',
-    'assets/icons/pin_red.svg',
-    'assets/icons/pin_yellow.svg'
+    SvgIcons.pinBlack.path,
+    SvgIcons.pinBlue.path,
+    SvgIcons.pinGreen.path,
+    SvgIcons.pinPurple.path,
+    SvgIcons.pinRed.path,
+    SvgIcons.pinYellow.path,
   ];
   double currentZoom = 6.0;
   final double zoomThreshold = 10.0;
@@ -144,7 +146,7 @@ class ClusteringBodyState extends State<MapView> {
                 )
               else ...[
                 ClusterPin(
-                  assetPath: 'assets/icons/cluster_green.svg',
+                  assetPath: SvgIcons.clusterGreen.path,
                   count: 1,
                 )
               ]
@@ -193,7 +195,7 @@ class ClusteringBodyState extends State<MapView> {
         ),
         children: <Widget>[
           TileLayer(
-            urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            urlTemplate: AppConstants.mapUrl,
             subdomains: const ['a', 'b', 'c'],
           ),
           MarkerClusterLayerWidget(
@@ -213,17 +215,17 @@ class ClusteringBodyState extends State<MapView> {
               builder: (context, markers) {
                 if (markers.length <= 10) {
                   return ClusterPin(
-                    assetPath: 'assets/icons/cluster_green.svg',
+                    assetPath: SvgIcons.clusterGreen.path,
                     count: markers.length,
                   );
                 } else if (markers.length <= 50) {
                   return ClusterPin(
-                    assetPath: 'assets/icons/cluster_blue.svg',
+                    assetPath: SvgIcons.clusterBlue.path,
                     count: markers.length,
                   );
                 } else {
                   return ClusterPin(
-                    assetPath: 'assets/icons/cluster_red.svg',
+                    assetPath: SvgIcons.clusterRed.path,
                     count: markers.length,
                   );
                 }

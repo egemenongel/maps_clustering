@@ -5,9 +5,9 @@ enum SvgIcons {
   pinPurple('pin_purple'),
   pinRed('pin_red'),
   pinYellow('pin_yellow'),
-  cluster10('cluster_10'),
-  cluster50('cluster_50'),
-  cluster200('cluster_200'),
+  clusterGreen('cluster_green'),
+  clusterBlue('cluster_blue'),
+  clusterRed('cluster_red'),
   ;
 
   const SvgIcons(this.slug);
