@@ -1,4 +1,4 @@
-package com.example.mobiliz
+package com.egemenongel.mobiliz
 
 import io.flutter.embedding.android.FlutterActivity
 

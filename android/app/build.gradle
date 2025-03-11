@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.mobiliz"
+    namespace = "com.egemenongel.mobiliz"
     compileSdk = 35
     ndkVersion = flutter.ndkVersion
 
@@ -21,7 +21,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.mobiliz"
+        applicationId = "com.egemenongel.mobiliz"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 21

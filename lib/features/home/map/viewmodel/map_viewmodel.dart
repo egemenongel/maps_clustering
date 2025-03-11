@@ -61,8 +61,8 @@ class MapViewModel extends ChangeNotifier {
   void createMarkers() {
     _markers = _locations.map((location) {
       return Marker(
-          height: 40,
-          width: 40,
+          height: 50,
+          width: 50,
           point: LatLng(location.lat, location.lon),
           child: Stack(
             children: [

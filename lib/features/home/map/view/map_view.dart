@@ -78,6 +78,8 @@ class _Map extends StatelessWidget {
         initialZoom: viewModel.initialZoom,
         maxZoom: viewModel.maxZoom,
         minZoom: 5.0,
+        interactionOptions: const InteractionOptions(
+            flags: InteractiveFlag.pinchZoom | InteractiveFlag.drag),
       ),
       children: <Widget>[
         _TileLayer(),
@@ -93,8 +95,9 @@ class _TileLayer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TileLayer(
-      urlTemplate: AppConstants.mapUrl,
+      urlTemplate: AppConstants.mapTiles.first,
       subdomains: AppConstants.mapSubDomains,
+      retinaMode: true,
     );
   }
 }
@@ -112,7 +115,7 @@ class _MarkerLayer extends StatelessWidget {
             maxClusterRadius: 70,
             showPolygon: false,
             spiderfyCluster: false,
-            size: const Size(40, 40),
+            size: const Size(50, 50),
             alignment: Alignment.center,
             padding: const EdgeInsets.all(50),
             maxZoom: 15,
