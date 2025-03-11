@@ -95,7 +95,7 @@ class _TileLayer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TileLayer(
-      urlTemplate: AppConstants.mapTiles.first,
+      urlTemplate: AppConstants.mapUrl,
       subdomains: AppConstants.mapSubDomains,
       retinaMode: true,
     );
