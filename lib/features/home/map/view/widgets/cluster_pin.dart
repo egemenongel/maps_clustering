@@ -47,7 +47,7 @@ class PinShadowPainter extends CustomPainter {
       ..color = Colors.black.withValues(alpha: 0.2)
       ..maskFilter = MaskFilter.blur(BlurStyle.normal, 4);
 
-    final shadowRect = Rect.fromLTWH(0, size.height - 2, size.width, 4);
+    final shadowRect = Rect.fromLTWH(0, size.height - 2, size.width, 3);
     canvas.drawRect(shadowRect, paint);
   }
 

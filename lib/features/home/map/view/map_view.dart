@@ -77,6 +77,7 @@ class _Map extends StatelessWidget {
         initialCenter: viewModel.initialCenter,
         initialZoom: viewModel.initialZoom,
         maxZoom: viewModel.maxZoom,
+        minZoom: 5.0,
       ),
       children: <Widget>[
         _TileLayer(),
