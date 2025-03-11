@@ -1,8 +1,10 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:iconsax_plus/iconsax_plus.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobiliz/core/components/custom_navigation_bar.dart';
 import 'package:mobiliz/core/config/router/router.gr.dart';
+import 'package:mobiliz/core/constants/app_colors.dart';
+import 'package:mobiliz/core/constants/assets.dart';
 
 @RoutePage()
 class HomeView extends StatelessWidget {
@@ -24,7 +26,7 @@ class HomeView extends StatelessWidget {
           decoration: BoxDecoration(
             border: Border(
               top: BorderSide(
-                color: Color(0xffE9E9E9),
+                color: AppColors.textColor50,
               ),
             ),
           ),
@@ -34,29 +36,29 @@ class HomeView extends StatelessWidget {
             items: [
               BottomNavigationBarItemWithDot(
                 label: 'Özet',
-                icon: Icon(IconsaxPlusLinear.note_2),
-                activeIcon: Icon(IconsaxPlusBold.note_2),
+                icon: SvgPicture.asset(SvgIcons.summary.path),
+                activeIcon: SvgPicture.asset(SvgIcons.summaryBold.path),
               ),
               BottomNavigationBarItemWithDot(
                 label: 'Filo Takip',
-                icon: Icon(IconsaxPlusLinear.smart_car),
-                activeIcon: Icon(IconsaxPlusBold.smart_car),
+                icon: SvgPicture.asset(SvgIcons.track.path),
+                activeIcon: SvgPicture.asset(SvgIcons.trackBold.path),
               ),
               BottomNavigationBarItemWithDot(
                 label: 'Harita',
-                icon: Icon(IconsaxPlusLinear.map_1),
-                activeIcon: Icon(IconsaxPlusBold.map_1),
+                icon: SvgPicture.asset(SvgIcons.map.path),
+                activeIcon: SvgPicture.asset(SvgIcons.mapBold.path),
               ),
               BottomNavigationBarItemWithDot(
                 label: 'Raporlar',
-                icon: Icon(IconsaxPlusLinear.graph),
-                activeIcon: Icon(IconsaxPlusBold.graph),
+                icon: SvgPicture.asset(SvgIcons.reports.path),
+                activeIcon: SvgPicture.asset(SvgIcons.reportsBold.path),
               ),
               BottomNavigationBarItemWithDot(
-                  label: 'Diğer',
-                  icon: Icon(IconsaxPlusLinear.element_equal),
-                  activeIcon: Icon(IconsaxPlusBold.element_equal),
-                  showDot: true),
+                label: 'Diğer',
+                icon: SvgPicture.asset(SvgIcons.others.path),
+                activeIcon: SvgPicture.asset(SvgIcons.othersBold.path),
+              ),
             ],
           ),
         );

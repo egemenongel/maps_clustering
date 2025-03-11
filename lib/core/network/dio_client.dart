@@ -11,11 +11,15 @@ class DioClient {
     BaseOptions(baseUrl: AppConstants.baseUrl),
   );
 
-  Future<BaseResponseModel<T>> sendRequest<T>(
-      String endpoint, T Function(dynamic) fromJsonT) async {
+  Future<BaseResponseModel<T>> getRequest<T>(
+    String endpoint,
+    T Function(dynamic) fromJsonT, {
+    Map<String, dynamic>? queryParameters,
+  }) async {
     try {
       final response = await dio.get(
         endpoint,
+        queryParameters: queryParameters,
       );
       return BaseResponseModel<T>.fromJson(response.data, fromJsonT);
     } catch (e) {

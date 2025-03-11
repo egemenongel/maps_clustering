@@ -9,10 +9,17 @@ class MapRepository {
 
   factory MapRepository() => _instance;
 
-  Future<BaseResponseModel<List<LocationModel>>> getLocations() async {
-    return await DioClient().sendRequest(
-      'towns?fields=lat,lon,town',
+  Future<BaseResponseModel<List<LocationModel>>> getLocations({
+    int? skip,
+  }) async {
+    final queries = {'fields': 'lat,lon,town'};
+    if (skip != null) {
+      queries['skip'] = skip.toString();
+    }
+    return await DioClient().getRequest(
+      'towns',
       (data) => (data as List).map((e) => LocationModel.fromJson(e)).toList(),
+      queryParameters: queries,
     );
   }
 }

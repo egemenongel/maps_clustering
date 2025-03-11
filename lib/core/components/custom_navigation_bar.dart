@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mobiliz/core/app_theme.dart';
+import 'package:mobiliz/core/constants/app_colors.dart';
 
 class CustomBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
@@ -15,7 +17,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white50,
       type: BottomNavigationBarType.fixed,
       currentIndex: currentIndex,
       showSelectedLabels: true,
@@ -30,7 +32,10 @@ class CustomBottomNavigationBar extends StatelessWidget {
               Column(
                 children: [
                   item.icon,
-                  Text(item.label!),
+                  Text(
+                    item.label!,
+                    style: AppTheme.instance.theme.textTheme.bodySmall,
+                  ),
                 ],
               ),
             ],
@@ -40,7 +45,13 @@ class CustomBottomNavigationBar extends StatelessWidget {
               Column(
                 children: [
                   item.activeIcon,
-                  Text(item.label!),
+                  Text(
+                    item.label!,
+                    style: AppTheme.instance.theme.textTheme.bodySmall
+                        ?.copyWith(
+                            color: AppColors.main600,
+                            fontWeight: FontWeight.w600),
+                  ),
                   SizedBox(height: 4),
                 ],
               ),
@@ -54,7 +65,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
                     height: 4,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Color(0xff3DAE2B),
+                      color: AppColors.main500,
                     ),
                   ),
                 ),

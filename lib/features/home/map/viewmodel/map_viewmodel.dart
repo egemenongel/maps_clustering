@@ -1,115 +1,124 @@
-import 'dart:developer';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:mobiliz/core/constants/assets.dart';
 import 'package:mobiliz/core/models/location_model.dart';
 import 'package:mobiliz/features/home/map/repository/map_repository.dart';
-import 'package:mobiliz/features/home/map/view/map_view.dart';
+import 'package:mobiliz/features/home/map/view/widgets/cluster_pin.dart';
 
 class MapViewModel extends ChangeNotifier {
-  final List<LocationModel> _locations = [];
-  final List<Marker> _markers = [];
+  int totalLocations = 500;
+  int batchSize = 100;
+  List<String> iconPaths = [
+    SvgIcons.pinBlack.path,
+    SvgIcons.pinBlue.path,
+    SvgIcons.pinGreen.path,
+    SvgIcons.pinPurple.path,
+    SvgIcons.pinRed.path,
+    SvgIcons.pinYellow.path,
+  ];
+  final double zoomThreshold = 10.0;
+  final LatLng initialCenter = LatLng(39.9334, 32.8597);
+  final double initialZoom = 6.0;
+  final double maxZoom = 15.0;
   bool _isLoading = false;
-  String? _errorMessage;
+  double _currentZoom = 6.0;
+  List<Marker> _markers = [];
+  List<int> randomNumbers = [];
+  final List<LocationModel> _locations = [];
+  bool _disposed = false;
 
-  final List<int> randomNumbers = [];
-  List<LocationModel> get locations => _locations;
+  double get currentZoom => _currentZoom;
   List<Marker> get markers => _markers;
+  bool get isZoomedIn => _currentZoom >= zoomThreshold;
   bool get isLoading => _isLoading;
-  String? get errorMessage => _errorMessage;
+
   final _repository = MapRepository();
 
-  double currentZoom = 6.0;
-  final double zoomThreshold = 10.0;
-  List<String> iconPaths = [
-    'assets/icons/pin_black.svg',
-    'assets/icons/pin_blue.svg',
-    'assets/icons/pin_green.svg',
-    'assets/icons/pin_purple.svg',
-    'assets/icons/pin_red.svg',
-    'assets/icons/pin_yellow.svg'
-  ];
-
-  void init() {
+  MapViewModel() {
     _initializeMarkers();
   }
 
-  void onMapMove(MapEvent event) {
-    if (event is MapEventMove && event.camera.zoom != currentZoom) {
-      final oldZoom = currentZoom;
-      currentZoom = event.camera.zoom;
-      notifyListeners();
-      if (currentZoom >= zoomThreshold) {
-        log(_markers.length.toString());
-      }
-      if ((oldZoom < zoomThreshold && currentZoom >= zoomThreshold) ||
-          (oldZoom >= zoomThreshold && currentZoom < zoomThreshold)) {
-        _markers.clear();
-
+  Future<void> _initializeMarkers() async {
+    setLoading();
+    for (var i = 0; i < totalLocations; i++) {
+      randomNumbers.add(math.Random().nextInt(iconPaths.length));
+    }
+    for (int skip = 0; skip < totalLocations; skip += batchSize) {
+      final response = await _repository.getLocations(skip: skip);
+      if (response.data?.isNotEmpty ?? false) {
+        _locations.addAll(response.data!);
         notifyListeners();
-
-        log('Zoom threshold crossed. New zoom: $currentZoom');
       }
     }
-  }
-
-  Future<void> _initializeMarkers() async {
-    await fetchLocations();
-    // for (var i = 0; i < _locations.length; i++) {
-    //   randomNumbers.add(math.Random().nextInt(iconPaths.length));
-    // }
-    // createMarkers();
+    createMarkers();
+    setLoading();
   }
 
   void createMarkers() {
-    final isZoomedIn = currentZoom >= zoomThreshold;
-    _markers.clear();
-    notifyListeners();
-
-    for (var i = 0; i < _locations.length; i++) {
-      _markers.add(
-        Marker(
+    _markers = _locations.map((location) {
+      return Marker(
           height: 40,
           width: 40,
-          point: LatLng(_locations[i].lat, _locations[i].lon),
+          point: LatLng(location.lat, location.lon),
           child: Stack(
             children: [
               if (isZoomedIn)
                 SvgPicture.asset(
-                  iconPaths[randomNumbers[i]],
+                  iconPaths[randomNumbers[_locations.indexOf(location)]],
                 )
               else ...[
                 ClusterPin(
-                  assetPath: 'assets/icons/cluster_green.svg',
+                  assetPath: SvgIcons.clusterGreen.path,
                   count: 1,
                 )
               ]
             ],
-          ),
-        ),
-      );
-    }
+          ));
+    }).toList();
+  }
+
+  void setLoading() {
+    _isLoading = !_isLoading;
     notifyListeners();
   }
 
-  Future<List<LocationModel>?> fetchLocations() async {
-    _isLoading = true;
-    notifyListeners();
+  void onMapEvent(MapEvent event) {
+    if (event is MapEventMove && event.camera.zoom != _currentZoom) {
+      final oldZoom = _currentZoom;
+      _currentZoom = event.camera.zoom;
 
-    try {
-      final response = await _repository.getLocations();
-      if (_locations.isEmpty) {
-        _locations.addAll(response.data!);
+      if ((oldZoom < zoomThreshold && _currentZoom >= zoomThreshold) ||
+          (oldZoom >= zoomThreshold && _currentZoom < zoomThreshold)) {
+        createMarkers();
+        notifyListeners();
       }
-      return response.data!;
-    } catch (e) {
-      _errorMessage = e.toString();
     }
+  }
 
-    _isLoading = false;
-    notifyListeners();
-    return null;
+  String getClusterAssetPath(int markerCount) {
+    if (markerCount <= 10) {
+      return SvgIcons.clusterGreen.path;
+    } else if (markerCount <= 50) {
+      return SvgIcons.clusterBlue.path;
+    } else {
+      return SvgIcons.clusterRed.path;
+    }
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+
+  @override
+  void notifyListeners() {
+    if (!_disposed) {
+      super.notifyListeners();
+    }
   }
 }
